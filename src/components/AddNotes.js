@@ -2,11 +2,7 @@ import React from "react";
 import { View, TextInput, StyleSheet } from "react-native";
 import Navbar from "./Navbar";
 
-
-
 const AddNotes = () => {
-
-
   return (
     <View style={homeStyles.container}>
       <Navbar createNote = {"createNote"} />

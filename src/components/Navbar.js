@@ -25,7 +25,7 @@ const Navbar = ({ createNote }) => {
               <Image source={require("../../assets/icon/searchIcon.png")} />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setVisible(true)}>
+          <TouchableOpacity>
             <View style={navStyle.utils__icon__info}>
               <Image source={require("../../assets/icon/helpIcon.png")} />
             </View>
@@ -33,7 +33,7 @@ const Navbar = ({ createNote }) => {
         </View>
       ) : (
         <View style={navStyle.utils__icon}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={navigation.navigate("Popup")}>
             <View style={navStyle.utils__icon__search}>
               <Image source={require("../../assets/icon/saveIcon.png")} />
             </View>

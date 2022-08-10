@@ -5,15 +5,14 @@ import {
   View,
   Image,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
-import Todo from "../components/Todo";
 import { todoTask } from "../../data";
 
 import Navbar from "../components/Navbar";
 import { useNavigation } from "@react-navigation/native";
+import Todo from "../components/Todo";
 
 const TodoListing = () => {
   const navigation = useNavigation();
