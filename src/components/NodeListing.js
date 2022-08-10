@@ -2,6 +2,19 @@ import React, { useState } from "react";
 import { Text, View, TouchableOpacity, Image } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { deleteNotes } from "../../reducer/notesSlice";
+import { useNavigation } from "@react-navigation/native";
+
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { db } from "../../config/Config";
 
 const generateColor = () => {
   const randomColor = Math.floor(Math.random() * 16777215)
@@ -11,12 +24,25 @@ const generateColor = () => {
 };
 
 const NodeListing = ({ Note }) => {
-  const onNoteDelete = (id) => {
-    dispatch(deleteNotes(id));
+  const navigation = useNavigation();
+
+  const dispatch = useDispatch();
+  const [deleteNote, setDeleteNote] = useState(false);
+
+  const onEditNoteClick = () => {
+
+    navigation.navigate("Edit", { noteId: Note.id });
   };
 
-  const [deleteNote, setDeleteNote] = useState(false);
-  const dispatch = useDispatch();
+  const onNoteDelete = async (id) => {
+    await deleteDoc(doc(db, "notes", `${id}`))
+      .then((res) => {
+        dispatch(deleteNotes(id));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <View>
@@ -40,7 +66,10 @@ const NodeListing = ({ Note }) => {
           </TouchableOpacity>
         </View>
       ) : (
-        <TouchableOpacity onLongPress={() => setDeleteNote(!deleteNote)}>
+        <TouchableOpacity
+          onLongPress={() => setDeleteNote(!deleteNote)}
+          onPress={onEditNoteClick}
+        >
           <View
             style={{
               width: "100%",

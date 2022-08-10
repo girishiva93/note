@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,58 +8,79 @@ import {
   TouchableOpacity,
   Modal,
 } from "react-native";
-
-import { useNavigation } from "@react-navigation/native";
-
-import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
-import { db } from "../../config/Config";
-
-
 import { useDispatch, useSelector } from "react-redux";
-import { setNotes } from "../../reducer/notesSlice";
+import { getNote, setNotes, updateNotes } from "../../reducer/notesSlice";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+  setDoc,
+} from "firebase/firestore";
+import { db } from "../../config/Config";
+import { useIsFocused } from "@react-navigation/native";
+import { async } from "@firebase/util";
 
+const EditNote = ({route, navigation}) => {
+  const isFocused = useIsFocused();
 
-const AddNotes = () => {
+  const { noteId } = route.params;
+
   const dispatch = useDispatch();
-  const { auth } = useSelector((state) => state.notes.value);
 
-  const navigation = useNavigation();
-
-  const [saveChangesVisible, setSaveChangesVisible] = useState(false);
-  const [discardChangesVisible, setDiscardChangesVisible] = useState(false);
-
-  const [createNote, setCreateNote] = useState({
+  const [editNote, setEditNote] = useState({
     title: "",
     description: "",
   });
 
-    const notesCollectionRef = collection(db, "notes");
+  const [saveChangesVisible, setSaveChangesVisible] = useState(false);
+  const [discardChangesVisible, setDiscardChangesVisible] = useState(false);
+
+  const docRef = doc(db, "notes", `${noteId}`);
 
   const addNoteHandler = (note, val) => {
-    setCreateNote((prevState) => ({
+    setEditNote((prevState) => ({
       ...prevState,
       [note]: val,
     }));
   };
+
+  const getNote = async () => {
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      setEditNote({ ...docSnap.data() });
+    }
+  };
+
   const onDiscardHandler = () => {
     setDiscardChangesVisible(false);
     navigation.navigate("Home");
   };
 
-  const onNoteSaveHandler = async() => {
+  const onNoteSaveHandler =async () => {
     setSaveChangesVisible(false);
-    await addDoc(notesCollectionRef, {
-      title: createNote.title,
-      description: createNote.description,
-      userId: auth.id,
-    });
-    navigation.navigate("Home");
+    const data = {
+      ...editNote,
+    };
+    await setDoc(docRef, data)
+      .then((docRef) => {
+        navigation.navigate("Home");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   const onCloseSave = () => {
     setSaveChangesVisible(false);
     setDiscardChangesVisible(true);
   };
+
+  useEffect(() => {
+    getNote();
+  }, [isFocused]);
 
   return (
     <View
@@ -89,8 +110,8 @@ const AddNotes = () => {
           style={styles.input__title}
           placeholderTextColor="#9A9A9A"
           placeholder="Title"
-          value={createNote.title}
-          name="Title"
+          value={editNote.title}
+          name="title"
           onChangeText={(e) => addNoteHandler("title", e)}
         />
         <TextInput
@@ -99,7 +120,7 @@ const AddNotes = () => {
           placeholderTextColor="#9A9A9A"
           placeholder="Type something..."
           name="description"
-          value={createNote.description}
+          value={editNote.description}
           onChangeText={(e) => addNoteHandler("description", e)}
         />
         <Modal
@@ -316,4 +337,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddNotes;
+export default EditNote;
