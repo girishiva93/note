@@ -8,35 +8,40 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
-import { todoTask } from "../../data";
 
 import Navbar from "../components/Navbar";
 import { useNavigation } from "@react-navigation/native";
 import Todo from "../components/Todo";
 
+import { useSelector } from "react-redux";
+
 const TodoListing = () => {
   const navigation = useNavigation();
+  const todoTask = useSelector((state) => state.notes.value.notes);
+
   return (
     <SafeAreaView>
       <ScrollView>
         <View style={homeStyles.container}>
-        <Navbar />
-          {todoTask ? (
-            <Todo todoTask={todoTask} />
-          ) : (
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: "30%",
-                height: "100%",
-              }}
-            >
-              <Image source={require("../../assets/icon/addTask.png")} />
-              <Text style={{ color: "white" }}>Create Your First Note !</Text>
-            </View>
-          )}
+          <Navbar />
+            {todoTask.length > 0 ? (
+              <Todo todoTask={todoTask} />
+            ) : (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  paddingTop: "50%",
+                  marginBottom: "80%",
+
+                  height: "100%",
+                }}
+              >
+                <Image source={require("../../assets/icon/addTask.png")} />
+                <Text style={{ color: "white" }}>Create Your First Note !</Text>
+              </View>
+            )}
         </View>
       </ScrollView>
 
@@ -52,8 +57,10 @@ const TodoListing = () => {
 
 const homeStyles = StyleSheet.create({
   container: {
+    backgroundColor: "#252525",
+    borderRadius: 5,
+    height:'100%',
     flex: 1,
-    backgroundColor: "black",
     paddingTop: Platform.OS === "android" ? 20 : 0,
   },
 
@@ -68,8 +75,6 @@ const homeStyles = StyleSheet.create({
     bottom: 0,
     right: 10,
   },
-
-
 });
 
 export default TodoListing;

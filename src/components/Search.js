@@ -8,7 +8,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { todoTask } from "../../data";
+import {useSelector} from "react-redux"
 
 const generateColor = () => {
   const randomColor = Math.floor(Math.random() * 16777215)
@@ -18,7 +18,10 @@ const generateColor = () => {
 };
 
 const Search = () => {
+  const todoTask =   useSelector((state) => state.notes.value.notes)
+  console.log(todoTask)
   const [filterSearch, setFilterSearch] = useState([]);
+  const [showImage, setShowImage] = useState(false);
 
   const handleSearch = (event) => {
     let value = event;
@@ -27,9 +30,13 @@ const Search = () => {
       setFilterSearch([]);
     } else {
       const newData = todoTask.filter(function (item) {
-        const itemData = item.name ? item.name.toUpperCase() : "".toUpperCase();
+        const itemData = item.title ? item.title.toUpperCase() : "".toUpperCase();
         const textData = value.toUpperCase();
-        return itemData.indexOf(textData) > -1;
+        if (itemData) {
+          return itemData.indexOf(textData) > -1;
+        } else {
+          setShowImage(true);
+        }
       });
       setFilterSearch(newData);
     }
@@ -56,12 +63,12 @@ const Search = () => {
             alignItems: "center",
           }}
         >
-          {!filterSearch.length > 0 || filterSearch === "" ? (
+          {showImage && filterSearch === "" ? (
             <View>
               <Image
                 source={require("../../assets/icon/filenotfoundIcon.png")}
               />
-              <Text style={{ color: "white", textAlign:"center" }}>
+              <Text style={{ color: "white", textAlign: "center" }}>
                 File not found. Try searching again.
               </Text>
             </View>
@@ -79,7 +86,7 @@ const Search = () => {
                       fontSize: 20,
                     }}
                   >
-                    <Text style={{ fontSize: 20 }}>{item.name}</Text>
+                    <Text style={{ fontSize: 20 }}>{item.title}</Text>
                   </View>
                 </TouchableOpacity>
               );
@@ -100,7 +107,7 @@ const homeStyles = StyleSheet.create({
   search__input: {
     fontSize: 18,
     marginLeft: 20,
-    color:'#CCCCCC'
+    color: "#CCCCCC",
   },
   searchBar__clicked: {
     marginTop: 100,
